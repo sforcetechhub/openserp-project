@@ -20,7 +20,7 @@ async def wait_for_openserp(client: AsyncOpenSERP) -> bool:
     for attempt in range(1, settings.startup_retries + 1):
         try:
             await client.health()
-            logger.info("OpenSERP is ready at %s", settings.openserp_base_url)
+            logger.info("OpenSERP is ready at %s", settings.resolved_openserp_base_url)
             return True
         except Exception as exc:  # noqa: BLE001 - any connect/health failure is retryable
             last_error = exc
@@ -38,7 +38,7 @@ async def wait_for_openserp(client: AsyncOpenSERP) -> bool:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     client = AsyncOpenSERP(
-        base_url=settings.openserp_base_url.rstrip("/"),
+        base_url=settings.resolved_openserp_base_url,
         backend="oss",
         timeout=settings.openserp_timeout,
     )

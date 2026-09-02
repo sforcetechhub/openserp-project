@@ -20,10 +20,17 @@ class Settings(BaseSettings):
     port: int = 8000
     startup_retries: int = 30
     startup_retry_delay: float = 2.0
+    combined_openserp: bool = False
 
     @property
     def auth_required(self) -> bool:
         return bool(self.api_key)
+
+    @property
+    def resolved_openserp_base_url(self) -> str:
+        if self.combined_openserp:
+            return "http://127.0.0.1:7000"
+        return self.openserp_base_url.rstrip("/")
 
 
 settings = Settings()

@@ -25,11 +25,10 @@ def _unreachable_payload(exc: BaseException) -> dict[str, Any]:
         503,
         "openserp_unreachable",
         (
-            f"Cannot reach OpenSERP at {settings.openserp_base_url}. "
-            "On Railway add a second service from Docker image karust/openserp:latest "
-            "named openserp (Dockerfile path openserp/Dockerfile, empty start command), "
-            "then set OPENSERP_BASE_URL=http://openserp.railway.internal:7000. "
-            f"Details: {exc}"
+            f"Cannot reach OpenSERP at {settings.resolved_openserp_base_url}. "
+            "The Railway image starts OpenSERP on 127.0.0.1:7000 via start.sh. "
+            "Clear any custom start command and give this service at least 2 GB RAM "
+            f"plus RAILWAY_SHM_SIZE_BYTES=2147483648. Details: {exc}"
         ),
     )
 

@@ -2,7 +2,7 @@
 
 Self-hosted [OpenSERP](https://github.com/karust/openserp) (official Docker image) wrapped by a Python FastAPI app that uses the official [`openserp`](https://pypi.org/project/openserp/) SDK and serves a small search UI.
 
-Netlify and Vercel cannot run OpenSERP: it is a long-lived Go process that launches Chromium. This project runs locally with Docker Compose and deploys to **Railway** as two services.
+Netlify and Vercel cannot run OpenSERP: it is a long-lived Go process that launches Chromium. This project runs locally with Docker Compose and deploys to **Railway as one service** (OpenSERP + API in the same container).
 
 ```
 Browser  -->  FastAPI UI + /api/*  -->  OpenSERP (Chromium)  -->  search engines
@@ -47,52 +47,24 @@ If `API_KEY` is set, send `Authorization: Bearer <key>` on `/api/*`.
 
 ## Railway
 
-Railway does not run Compose as one unit. Create **one project** with **two services**.
+Use **one GitHub service**. Do not use `.railway.internal`: that DNS is IPv6-only, and OpenSERP listens on IPv4, so connections fail.
 
-### 1. `openserp` — this GitHub repo (Chrome without sandbox)
-
-Do **not** use the Hub image `karust/openserp:latest` on Railway. Chromium's sandbox fails there (`credentials.cc: Permission denied (13)`). This repo builds a thin wrapper around that image.
-
-1. New service → **GitHub Repo** → this same repository
-2. Name the service **`openserp`**
-3. Settings → Build:
-   - Root Directory: empty
-   - Dockerfile path: `openserp/Dockerfile`
-4. **Clear the custom start command** (leave it empty). The image already runs `/usr/local/bin/openserp serve -a 0.0.0.0 -p 7000`. If Railway requires a value, use:
-
-   ```
-   /usr/local/bin/openserp serve -a 0.0.0.0 -p 7000
-   ```
-
+1. Keep a single service connected to this repository (root `Dockerfile`).
+2. **Delete** any second `openserp` / Docker-image service.
+3. **Clear the custom start command** so the image runs `start.sh` (OpenSERP on `127.0.0.1:7000`, then the API on `$PORT`).
+4. Settings → Resources: at least **2 GB RAM**.
 5. Variables:
 
    ```
-   OPENSERP_SERVER_HOST=0.0.0.0
-   OPENSERP_SERVER_PORT=7000
    RAILWAY_SHM_SIZE_BYTES=2147483648
-   ```
-
-6. Resources: at least **2 GB RAM**
-7. Do **not** generate a public domain. Keep this service private.
-
-### 2. `api` — this GitHub repo
-
-1. New service → **GitHub Repo** → this repository (root Dockerfile is auto-detected; do not set a custom start script)
-2. Leave **Root Directory** empty (repo root). Railway uses `Dockerfile` + `railway.toml`.
-3. Variables:
-
-   ```
-   OPENSERP_BASE_URL=http://openserp.railway.internal:7000
    OPENSERP_TIMEOUT=120
    API_KEY=<optional-secret>
    ```
 
-   Railway also injects `PORT`. Uvicorn binds `0.0.0.0:$PORT`.
-4. Generate a **public domain** for the UI.
+   You can leave `OPENSERP_BASE_URL` unset. The combined image always uses `http://127.0.0.1:7000`.
+6. Generate a **public domain** on this service.
 
-If search returns 500/503, open `/health` on the public domain. `openserp_ready: false` means the API cannot see OpenSERP. Confirm the `openserp` service exists, is named exactly `openserp`, is running, and the API has `OPENSERP_BASE_URL=http://openserp.railway.internal:7000`.
-
-Private networking uses `http://<service-name>.railway.internal:<port>` with no port mapping layer.
+`/health` should show `"openserp_ready": true` and `"openserp_base_url": "http://127.0.0.1:7000"`.
 
 ## Operational notes
 
