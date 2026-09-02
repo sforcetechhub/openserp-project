@@ -1,6 +1,9 @@
 services:
   openserp:
-    image: karust/openserp:latest
+    build:
+      context: .
+      dockerfile: openserp/Dockerfile
+    image: openserp-nosandbox:local
     init: true
     # Chrome crashes with "Out of memory" on page loads when /dev/shm is the default 64MB.
     shm_size: 2gb

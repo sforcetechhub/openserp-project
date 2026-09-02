@@ -49,16 +49,22 @@ If `API_KEY` is set, send `Authorization: Bearer <key>` on `/api/*`.
 
 Railway does not run Compose as one unit. Create **one project** with **two services**.
 
-### 1. `openserp` — Docker Image
+### 1. `openserp` — this GitHub repo (Chrome without sandbox)
 
-1. New service → **Docker Image** → `karust/openserp:latest`
-2. Name the service **`openserp`** (private DNS becomes `openserp.railway.internal`)
-3. Custom start command (Railway replaces the image entrypoint, so include `openserp`):
+Do **not** use the Hub image `karust/openserp:latest` on Railway. Chromium's sandbox fails there (`credentials.cc: Permission denied (13)`). This repo builds a thin wrapper around that image.
+
+1. New service → **GitHub Repo** → this same repository
+2. Name the service **`openserp`**
+3. Settings → Build:
+   - Root Directory: empty
+   - Dockerfile path: `openserp/Dockerfile`
+4. Custom start command:
 
    ```
    openserp serve -a 0.0.0.0 -p 7000
    ```
-4. Variables:
+
+5. Variables:
 
    ```
    OPENSERP_SERVER_HOST=0.0.0.0
@@ -66,8 +72,8 @@ Railway does not run Compose as one unit. Create **one project** with **two serv
    RAILWAY_SHM_SIZE_BYTES=2147483648
    ```
 
-5. Resources: at least **2 GB RAM**
-6. Do **not** generate a public domain. Keep this service private.
+6. Resources: at least **2 GB RAM**
+7. Do **not** generate a public domain. Keep this service private.
 
 ### 2. `api` — this GitHub repo
 
