@@ -53,7 +53,11 @@ Railway does not run Compose as one unit. Create **one project** with **two serv
 
 1. New service → **Docker Image** → `karust/openserp:latest`
 2. Name the service **`openserp`** (private DNS becomes `openserp.railway.internal`)
-3. Custom start command: `serve -a 0.0.0.0 -p 7000`
+3. Custom start command (Railway replaces the image entrypoint, so include `openserp`):
+
+   ```
+   openserp serve -a 0.0.0.0 -p 7000
+   ```
 4. Variables:
 
    ```
@@ -80,7 +84,7 @@ Railway does not run Compose as one unit. Create **one project** with **two serv
    Railway also injects `PORT`. Uvicorn binds `0.0.0.0:$PORT`.
 4. Generate a **public domain** for the UI.
 
-If search returns 500/503, open `/health` on the public domain. `openserp_ready: false` means the API cannot see OpenSERP. Confirm the `openserp` image service exists, is named exactly `openserp`, is running (`serve -a 0.0.0.0 -p 7000`), and the API has `OPENSERP_BASE_URL=http://openserp.railway.internal:7000`.
+If search returns 500/503, open `/health` on the public domain. `openserp_ready: false` means the API cannot see OpenSERP. Confirm the `openserp` image service exists, is named exactly `openserp`, is running (`openserp serve -a 0.0.0.0 -p 7000`), and the API has `OPENSERP_BASE_URL=http://openserp.railway.internal:7000`.
 
 Private networking uses `http://<service-name>.railway.internal:<port>` with no port mapping layer.
 

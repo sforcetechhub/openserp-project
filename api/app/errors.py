@@ -27,7 +27,7 @@ def _unreachable_payload(exc: BaseException) -> dict[str, Any]:
         (
             f"Cannot reach OpenSERP at {settings.openserp_base_url}. "
             "On Railway add a second service from Docker image karust/openserp:latest "
-            "named openserp, start command `serve -a 0.0.0.0 -p 7000`, "
+            "named openserp, start command `openserp serve -a 0.0.0.0 -p 7000`, "
             "then set OPENSERP_BASE_URL=http://openserp.railway.internal:7000. "
             f"Details: {exc}"
         ),
