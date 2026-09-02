@@ -3,6 +3,7 @@ from openserp import AsyncOpenSERP, OssOnlyError
 
 from app.auth import dump_model
 from app.client import get_client
+from app.config import settings
 
 router = APIRouter(tags=["health"])
 
@@ -27,5 +28,6 @@ async def health(request: Request, client: AsyncOpenSERP = Depends(get_client)) 
     return {
         "status": "ok" if ready else "degraded",
         "openserp_ready": ready,
+        "openserp_base_url": settings.openserp_base_url,
         "openserp": openserp,
     }

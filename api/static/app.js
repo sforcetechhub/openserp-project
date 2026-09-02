@@ -23,9 +23,21 @@ async function api(path, options = {}) {
     ...options,
     headers: { ...headers(), ...(options.headers || {}) },
   });
-  const data = await response.json().catch(() => ({}));
+  const raw = await response.text();
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = { reason: raw.slice(0, 240) };
+  }
   if (!response.ok) {
-    const message = data.reason || data.code || data.detail || `Request failed (${response.status})`;
+    let detail = data.detail;
+    if (Array.isArray(detail)) {
+      detail = detail.map((item) => item.msg || JSON.stringify(item)).join("; ");
+    } else if (detail && typeof detail === "object") {
+      detail = detail.reason || detail.message || JSON.stringify(detail);
+    }
+    const message = data.reason || data.code || detail || `Request failed (${response.status})`;
     const error = new Error(message);
     error.status = response.status;
     error.payload = data;
