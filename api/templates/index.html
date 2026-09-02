@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenSERP</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="mark">OS</span>
+        <div>
+          <strong>OpenSERP</strong>
+          <small>self-hosted search</small>
+        </div>
+      </div>
+      <div class="top-meta">
+        <span id="health-pill" class="pill pending">checking</span>
+        {% if auth_required %}
+        <label class="key-field">
+          API key
+          <input id="api-key" type="password" placeholder="Bearer token" autocomplete="off" />
+        </label>
+        {% endif %}
+      </div>
+    </header>
+
+    <main>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="search" type="button">Search</button>
+        <button class="tab" data-tab="images" type="button">Images</button>
+        <button class="tab" data-tab="extract" type="button">Extract</button>
+      </nav>
+
+      <section id="panel-search" class="panel">
+        <form id="search-form" class="query-form">
+          <input name="text" type="search" placeholder="Search the open web" required autofocus />
+          <div class="row">
+            <label>
+              Engine
+              <select name="engine">
+                <option value="duckduckgo" selected>DuckDuckGo</option>
+                <option value="ecosia">Ecosia</option>
+                <option value="bing">Bing</option>
+                <option value="google">Google</option>
+                <option value="yandex">Yandex</option>
+                <option value="baidu">Baidu</option>
+              </select>
+            </label>
+            <label class="check">
+              <input name="mega" type="checkbox" />
+              Megasearch
+            </label>
+            <label>
+              Mode
+              <select name="mode">
+                <option value="balanced" selected>balanced</option>
+                <option value="fast">fast</option>
+                <option value="any">any</option>
+              </select>
+            </label>
+            <label>
+              Limit
+              <input name="limit" type="number" min="1" max="100" value="10" />
+            </label>
+            <label>
+              Region
+              <input name="region" type="text" placeholder="US" maxlength="8" />
+            </label>
+            <label>
+              Extract
+              <select name="extract">
+                <option value="0" selected>off</option>
+                <option value="1">top 1</option>
+                <option value="2">top 2</option>
+                <option value="3">top 3</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit">Search</button>
+        </form>
+        <div id="search-status" class="status" hidden></div>
+        <div id="search-results" class="results"></div>
+      </section>
+
+      <section id="panel-images" class="panel" hidden>
+        <form id="image-form" class="query-form">
+          <input name="text" type="search" placeholder="Image query" required />
+          <div class="row">
+            <label>
+              Engine
+              <select name="engine">
+                <option value="bing" selected>Bing</option>
+                <option value="google">Google</option>
+                <option value="yandex">Yandex</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+              </select>
+            </label>
+            <label class="check">
+              <input name="mega" type="checkbox" />
+              Mega images
+            </label>
+            <label>
+              Limit
+              <input name="limit" type="number" min="1" max="50" value="12" />
+            </label>
+          </div>
+          <button type="submit">Find images</button>
+        </form>
+        <div id="image-status" class="status" hidden></div>
+        <div id="image-results" class="image-grid"></div>
+      </section>
+
+      <section id="panel-extract" class="panel" hidden>
+        <form id="extract-form" class="query-form">
+          <input name="url" type="url" placeholder="https://example.com/article" required />
+          <div class="row">
+            <label>
+              Mode
+              <select name="mode">
+                <option value="auto" selected>auto</option>
+                <option value="fast">fast</option>
+                <option value="rendered">rendered</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit">Extract page</button>
+        </form>
+        <div id="extract-status" class="status" hidden></div>
+        <article id="extract-result" class="extract"></article>
+      </section>
+    </main>
+
+    <footer>
+      Powered by self-hosted OpenSERP. Google/Bing may CAPTCHA datacenter IPs; try DuckDuckGo first.
+    </footer>
+
+    <script>
+      window.AUTH_REQUIRED = {{ auth_required | tojson }};
+    </script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
