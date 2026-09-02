@@ -51,7 +51,13 @@ Use **one GitHub service**. Do not use `.railway.internal`: that DNS is IPv6-onl
 
 1. Keep a single service connected to this repository (root `Dockerfile`).
 2. **Delete** any second `openserp` / Docker-image service.
-3. **Clear the custom start command** so the image runs `start.sh` (OpenSERP on `127.0.0.1:7000`, then the API on `$PORT`).
+3. Start command must be exactly:
+
+   ```
+   /bin/sh /usr/local/bin/start.sh
+   ```
+
+   Do not use `openserp` here. The official image entrypoint is `openserp`, so a bare `start.sh` becomes `openserp start.sh` and fails.
 4. Settings → Resources: at least **2 GB RAM**.
 5. Variables:
 

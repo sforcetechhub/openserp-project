@@ -34,4 +34,7 @@ USER chrome
 
 EXPOSE 8000
 
-CMD ["/usr/local/bin/start.sh"]
+# Parent image ENTRYPOINT is ["openserp"]. Without this reset, Railway/Docker
+# runs `openserp /usr/local/bin/start.sh` and OpenSERP rejects the unknown command.
+ENTRYPOINT ["/bin/sh", "/usr/local/bin/start.sh"]
+CMD []
