@@ -67,8 +67,8 @@ Railway does not run Compose as one unit. Create **one project** with **two serv
 
 ### 2. `api` — this GitHub repo
 
-1. New service → **GitHub Repo** → this repository
-2. Root Directory / Dockerfile path: `api/` (uses `api/Dockerfile` and `api/railway.toml`)
+1. New service → **GitHub Repo** → this repository (root Dockerfile is auto-detected; do not set a custom start script)
+2. Leave **Root Directory** empty (repo root). Railway uses `Dockerfile` + `railway.toml`.
 3. Variables:
 
    ```

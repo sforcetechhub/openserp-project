@@ -43,10 +43,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         timeout=settings.openserp_timeout,
     )
     app.state.client = client
-    app.state.openserp_ready = await wait_for_openserp(client)
+    app.state.openserp_ready = False
+
+    async def _mark_ready() -> None:
+        app.state.openserp_ready = await wait_for_openserp(client)
+
+    ready_task = asyncio.create_task(_mark_ready())
     try:
         yield
     finally:
+        ready_task.cancel()
+        try:
+            await ready_task
+        except asyncio.CancelledError:
+            pass
         await client.close()
 
 
